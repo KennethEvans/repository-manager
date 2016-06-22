@@ -125,13 +125,22 @@ public class RepositoryManager extends JFrame implements IConstants
         }
         repositories.clear();
         // Directories
+        boolean found = false;
         File parentDir;
         for(String dirName : repositoryLocations.getParentDirectories()) {
             parentDir = new File(dirName);
             File[] files = parentDir.listFiles();
             for(File dir : files) {
                 if(dir.isDirectory()) {
-                    repositories.add(new RepositoryModel(dir));
+                    // Check if there is a .git repository
+                    File[] files1 = dir.listFiles();
+                    for(File dir1 : files1) {
+                        if(dir1.isDirectory()
+                            && dir1.getName().equals(".git")) {
+                            repositories.add(new RepositoryModel(dir));
+                            continue;
+                        }
+                    }
                 }
             }
         }
@@ -282,11 +291,11 @@ public class RepositoryManager extends JFrame implements IConstants
                         pos += jPanelHeight;
                     } else {
                         if(model.isBehind()) {
-                            g.drawImage(pushImage, pos, 0, null);
+                            g.drawImage(pullImage, pos, 0, null);
                             pos += jPanelHeight;
                         }
                         if(model.isAhead()) {
-                            g.drawImage(pullImage, pos, 0, null);
+                            g.drawImage(pushImage, pos, 0, null);
                             pos += jPanelHeight;
                         }
                     }
@@ -616,7 +625,7 @@ public class RepositoryManager extends JFrame implements IConstants
      */
     private void loadModel(final RepositoryModel model) {
         if(model == null) {
-            Utils.errMsg("Model is null");
+            Utils.errMsg("loadModel: Model is null");
             return;
         }
 
