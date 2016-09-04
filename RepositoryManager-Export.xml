@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project net.kenevans.git.repositorymanager with libraries in sub-folder">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <!--define folder properties-->
+    <property name="dir.buildfile" value="."/>
+    <property name="dir.workspace" value="${dir.buildfile}/.."/>
+    <property name="dir.jarfile" value="C:/Deploy/Repository Manager"/>
+    <target name="create_run_jar">
+        <jar destfile="${dir.jarfile}/RepositoryManager.jar">
+            <manifest>
+                <attribute name="Main-Class" value="net.kenevans.git.repositorymanager.ui.RepositoryManager"/>
+                <attribute name="Class-Path" value=". RepositoryManager_lib/org.eclipse.jgit-4.3.1.201605051710-r.jar RepositoryManager_lib/jsch-0.1.53.jar RepositoryManager_lib/JavaEWAH-0.7.9.jar RepositoryManager_lib/httpclient-4.3.6.jar RepositoryManager_lib/httpcore-4.3.3.jar RepositoryManager_lib/commons-logging-1.1.3.jar RepositoryManager_lib/commons-codec-1.6.jar RepositoryManager_lib/slf4j-api-1.7.2.jar RepositoryManager_lib/slf4j-simple-1.7.21.jar RepositoryManager_lib/gson-2.6.2.jar"/>
+            </manifest>
+            <fileset dir="${dir.buildfile}/target/classes"/>
+        </jar>
+        <delete dir="${dir.jarfile}/RepositoryManager_lib"/>
+        <mkdir dir="${dir.jarfile}/RepositoryManager_lib"/>
+        <copy file="C:/Users/evans/.m2/repository/org/eclipse/jgit/org.eclipse.jgit/4.3.1.201605051710-r/org.eclipse.jgit-4.3.1.201605051710-r.jar" todir="${dir.jarfile}/RepositoryManager_lib"/>
+        <copy file="C:/Users/evans/.m2/repository/com/jcraft/jsch/0.1.53/jsch-0.1.53.jar" todir="${dir.jarfile}/RepositoryManager_lib"/>
+        <copy file="C:/Users/evans/.m2/repository/com/googlecode/javaewah/JavaEWAH/0.7.9/JavaEWAH-0.7.9.jar" todir="${dir.jarfile}/RepositoryManager_lib"/>
+        <copy file="C:/Users/evans/.m2/repository/org/apache/httpcomponents/httpclient/4.3.6/httpclient-4.3.6.jar" todir="${dir.jarfile}/RepositoryManager_lib"/>
+        <copy file="C:/Users/evans/.m2/repository/org/apache/httpcomponents/httpcore/4.3.3/httpcore-4.3.3.jar" todir="${dir.jarfile}/RepositoryManager_lib"/>
+        <copy file="C:/Users/evans/.m2/repository/commons-logging/commons-logging/1.1.3/commons-logging-1.1.3.jar" todir="${dir.jarfile}/RepositoryManager_lib"/>
+        <copy file="C:/Users/evans/.m2/repository/commons-codec/commons-codec/1.6/commons-codec-1.6.jar" todir="${dir.jarfile}/RepositoryManager_lib"/>
+        <copy file="C:/Users/evans/.m2/repository/org/slf4j/slf4j-api/1.7.2/slf4j-api-1.7.2.jar" todir="${dir.jarfile}/RepositoryManager_lib"/>
+        <copy file="C:/Users/evans/.m2/repository/org/slf4j/slf4j-simple/1.7.21/slf4j-simple-1.7.21.jar" todir="${dir.jarfile}/RepositoryManager_lib"/>
+        <copy file="C:/Users/evans/.m2/repository/com/google/code/gson/gson/2.6.2/gson-2.6.2.jar" todir="${dir.jarfile}/RepositoryManager_lib"/>
+    </target>
+</project>

@@ -125,7 +125,6 @@ public class RepositoryManager extends JFrame implements IConstants
         }
         repositories.clear();
         // Directories
-        boolean found = false;
         File parentDir;
         for(String dirName : repositoryLocations.getParentDirectories()) {
             parentDir = new File(dirName);
