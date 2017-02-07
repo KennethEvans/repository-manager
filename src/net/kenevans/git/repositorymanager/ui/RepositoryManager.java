@@ -671,7 +671,7 @@ public class RepositoryManager extends JFrame implements IConstants
     private void onListItemSelected(ListSelectionEvent ev) {
         if(ev.getValueIsAdjusting()) return;
         RepositoryModel model = (RepositoryModel)list.getSelectedValue();
-        loadModel(model);
+        if(model != null) loadModel(model);
     }
 
     /**
