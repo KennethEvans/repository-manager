@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +26,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -61,11 +63,11 @@ public class RepositoryManager extends JFrame implements IConstants
 {
     private static final long serialVersionUID = 1L;
     public static final String LS = System.getProperty("line.separator");
+    private static final String DEFAULT_CSV_FILE = "Repository Summary.csv";
 
     public static final boolean LOAD_TEST_REPOSITORIES = false;
 
     private ArrayList<RepositoryModel> repositories = new ArrayList<>();
-
     private RepositoryLocations repositoryLocations;
 
     /** Keeps the last-used path for the file open dialog. */
@@ -377,6 +379,21 @@ public class RepositoryManager extends JFrame implements IConstants
         });
         menu.add(menuItem);
 
+        // Export
+        JMenu exportMenu = new JMenu();
+        exportMenu.setText("Export...");
+        menu.add(exportMenu);
+
+        // CSV
+        menuItem = new JMenuItem();
+        menuItem.setText("CSV...");
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                exportCSV();
+            }
+        });
+        exportMenu.add(menuItem);
+
         JSeparator separator = new JSeparator();
         menu.add(separator);
 
@@ -617,6 +634,31 @@ public class RepositoryManager extends JFrame implements IConstants
         return sb.toString();
     }
 
+    private void writeCSV(File file) {
+        PrintWriter writer = null;
+        try {
+            // // DEBUG
+            // writer = new PrintWriter(System.out, true);
+            writer = new PrintWriter(file, "CP1252");
+            // Headings
+            String[] headings = RepositoryModel.getCVSHeadings();
+            for(String heading : headings) {
+                writer.print(heading + RepositoryModel.COMMA);
+            }
+            writer.println();
+            for(RepositoryModel model : repositories) {
+                writer.print(model.getCVSInfo());
+            }
+        } catch(Exception ex) {
+            Utils.excMsg("Error writing CSV file", ex);
+        } finally {
+            if(writer != null) {
+                writer.flush();
+                writer.close();
+            }
+        }
+    }
+
     /**
      * Loads a new model.
      * 
@@ -678,7 +720,6 @@ public class RepositoryManager extends JFrame implements IConstants
      * Shows model information.
      */
     private void showSummaryDetails() {
-
         scrolledTextMsg(null, getSummaryDetails(), "Summary Details",
             DETAILS_WIDTH, DETAILS_HEIGHT);
     }
@@ -756,6 +797,40 @@ public class RepositoryManager extends JFrame implements IConstants
         }
         infoTextArea.setText(info);
         infoTextArea.setCaretPosition(0);
+    }
+
+    /**
+     * Exports a CSV file
+     */
+    private void exportCSV() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setSelectedFile(new File(DEFAULT_CSV_FILE));
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
+            public boolean accept(File file) {
+                return file.isDirectory() || file.getName().endsWith(".csv");
+            }
+
+            public String getDescription() {
+                return "Comma Separated Values (CSV)";
+            }
+        });
+        if(fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        // Process the file
+        String fileName = fileChooser.getSelectedFile().getPath();
+        File file = new File(fileName);
+        if(file.exists()) {
+            int selection = JOptionPane.showConfirmDialog(null,
+                "File already exists:" + LS + fileName + "\nOK to replace?",
+                "Warning", JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+            if(selection != JOptionPane.OK_OPTION) ;
+        }
+
+        // Save it
+        writeCSV(file);
     }
 
     /**

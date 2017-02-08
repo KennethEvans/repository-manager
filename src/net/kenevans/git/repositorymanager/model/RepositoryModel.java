@@ -30,6 +30,13 @@ public class RepositoryModel implements IConstants
     private boolean isBehind;
     private boolean isNotTracking;
     private boolean isNotFound;
+    private static final String[] CVS_HEADINGS = new String[] {"Name", "Clean",
+        "Added", "Changed", "Conflicting", "Conflicting Stage State", "Ignored",
+        "Missing", "Modified", "Removed:", "Untracked", "Untracked Folders",
+        "Branches", "Remotes", "Tracking Branch",
+        "\"Remote Tracking (Ahead, Behind)\"",};
+    public static final String COMMA = ",";
+    public static final String ITEM_DELIMITER = "\n";
 
     public RepositoryModel(String fileName) {
         if(fileName == null) {
@@ -101,6 +108,118 @@ public class RepositoryModel implements IConstants
      * @param full For the status show the full status even if clean. Otherwise
      *            just show clean and tracking.
      */
+    private String getCVSSummary() {
+        StringBuilder sb = new StringBuilder();
+        Repository repository;
+        Status status;
+        Git git = null;
+        List<Ref> call, call1;
+        String url;
+
+        // Name
+        sb.append(getFilePath() + COMMA);
+        try {
+            try {
+                git = Git.open(file);
+            } catch(RepositoryNotFoundException ex) {
+                String msg = "Repository not found";
+                sb.append(LS + msg);
+                return sb.toString();
+            }
+            repository = git.getRepository();
+
+            // Status
+            status = git.status().call();
+            sb.append(status.isClean() + COMMA);
+            sb.append(status.getAdded().size() + COMMA);
+            sb.append(status.getChanged().size() + COMMA);
+            sb.append(status.getConflicting().size() + COMMA);
+            sb.append(status.getConflictingStageState().size() + COMMA);
+            sb.append(status.getIgnoredNotInIndex().size() + COMMA);
+            sb.append(status.getMissing().size() + COMMA);
+            sb.append(status.getModified().size() + COMMA);
+            sb.append(status.getRemoved().size() + COMMA);
+            sb.append(status.getUntracked().size() + COMMA);
+            sb.append(status.getUntrackedFolders().size() + COMMA);
+
+            // Branches
+            sb.append("\"");
+            call = git.branchList().setListMode(ListMode.ALL).call();
+            boolean first = true;
+            for(Ref ref : call) {
+                sb.append((first ? "" : ITEM_DELIMITER) + ref.getName());
+                first = false;
+            }
+            sb.append("\"" + COMMA);
+
+            // Remotes
+            sb.append("\"");
+            Config config = repository.getConfig();
+            Set<String> remotes = config.getSubsections("remote");
+            first = true;
+            for(String remoteName : remotes) {
+                url = config.getString("remote", remoteName, "url");
+                sb.append((first ? "" : ITEM_DELIMITER) + url);
+                first = false;
+            }
+            sb.append("\"" + COMMA);
+
+            // Tracking branch
+            String trackingBranch = new BranchConfig(repository.getConfig(),
+                repository.getBranch()).getTrackingBranch();
+            sb.append(trackingBranch + COMMA);
+
+            // Remote tracking
+            sb.append("\"");
+            List<Integer> counts;
+            call = git.branchList().call();
+            if(call.size() == 0) {
+            } else {
+                for(Ref refLocal : call) {
+                    call1 = git.branchList().setListMode(ListMode.REMOTE)
+                        .call();
+                    if(call1.size() == 0) {
+                        continue;
+                    }
+                    first = true;
+                    for(Ref refRemote : call1) {
+                        counts = JGitUtilities.calculateDivergence(repository,
+                            refLocal, refRemote);
+                        if(!first) sb.append(ITEM_DELIMITER);
+                        first = false;
+                        sb.append(refLocal.getName() + "/");
+                        sb.append(refRemote.getName() + " (");
+                        if(counts == null) {
+                            sb.append(")");
+                        } else if(counts.size() != 2) {
+                            sb.append("?)");
+                        } else {
+                            sb.append("+" + counts.get(0) + ", ");
+                            sb.append("-" + counts.get(1) + ")");
+                        }
+                    }
+                }
+            }
+            sb.append("\"" + COMMA);
+        } catch(Exception ex) {
+            String msg = "Error getting CSV values";
+            Utils.excMsg(msg, ex);
+            sb.append(LS + msg);
+            return sb.toString();
+        }
+        sb.append(LS);
+        return sb.toString();
+    }
+
+    /**
+     * Gets the status and branch tracking of the repository locations.
+     * 
+     * @param doStatus Show the status or not.
+     * @param doBranchTracking Show the tracking or not.
+     * @param doRemotes Show the remotes or not for full.
+     * @param full For the status show the full status even if clean. Otherwise
+     *            just show clean and tracking.
+     */
     private String getStatus(boolean doStatus, boolean doBranchTracking,
         boolean doRemotes, boolean full) {
         String tab2 = "  ";
@@ -111,8 +230,7 @@ public class RepositoryModel implements IConstants
         Git git = null;
         List<Ref> call, call1;
         boolean isClean;
-        Utils.appendLine(sb, getFilePath());
-        Utils.appendLS(sb);
+        Utils.appendLine(sb, getFilePath(), COMMA);
         try {
             try {
                 git = Git.open(file);
@@ -256,6 +374,26 @@ public class RepositoryModel implements IConstants
         String info = "";
         info += getStatus(true, true, true, true);
         return info;
+    }
+
+    /**
+     * Gets info about this repository in a CSV form.
+     * 
+     * @return
+     */
+    public String getCVSInfo() {
+        String info = "";
+        info += getCVSSummary();
+        return info;
+    }
+
+    /**
+     * Gets headings for info about this repository in a CSV form.
+     * 
+     * @return
+     */
+    public static String[] getCVSHeadings() {
+        return CVS_HEADINGS;
     }
 
     /**

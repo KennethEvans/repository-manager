@@ -180,8 +180,8 @@ public class Utils
             in = new FileInputStream(file);
             nRead = in.read(bytes);
             if(nRead != len) {
-                throw new IOException("Only read " + nRead + " of " + len
-                    + " bytes");
+                throw new IOException(
+                    "Only read " + nRead + " of " + len + " bytes");
             }
             return bytes;
         } finally {
@@ -212,7 +212,21 @@ public class Utils
         final SimpleDateFormat dateFormatter = new SimpleDateFormat(pattern);
         return dateFormatter.format(now);
     }
-    
+
+    /**
+     * Utility method to append a line with a given separator to the given
+     * StringBuffer.
+     * 
+     * @param sb
+     * @param text
+     * @param separator
+     */
+    public static void appendLine(StringBuilder sb, String text,
+        String separator) {
+        sb.append(text);
+        sb.append(separator);
+    }
+
     /**
      * Utility method to append a line with line separator to the given
      * StringBuffer.
@@ -221,12 +235,21 @@ public class Utils
      * @param text
      */
     public static void appendLine(StringBuilder sb, String text) {
-        sb.append(text);
-        sb.append(LS);
+        appendLine(sb, text, LS);
     }
 
     /**
      * Utility method to append a line separator to the given StringBuffer.
+     * 
+     * @param sb
+     */
+    public static void appendSeparator(StringBuilder sb, String separator) {
+        sb.append(separator);
+    }
+
+    /**
+     * Utility method to append a line with the given separator to the given
+     * StringBuffer.
      * 
      * @param sb
      */
