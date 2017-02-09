@@ -639,7 +639,7 @@ public class RepositoryManager extends JFrame implements IConstants
         try {
             // // DEBUG
             // writer = new PrintWriter(System.out, true);
-            writer = new PrintWriter(file, "CP1252");
+            writer = new PrintWriter(file);
             // Headings
             String[] headings = RepositoryModel.getCVSHeadings();
             for(String heading : headings) {
