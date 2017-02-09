@@ -33,8 +33,8 @@ public class RepositoryModel implements IConstants
     private static final String[] CVS_HEADINGS = new String[] {"Name", "Clean",
         "Added", "Changed", "Conflicting", "Conflicting Stage State", "Ignored",
         "Missing", "Modified", "Removed:", "Untracked", "Untracked Folders",
-        "Branches", "Remotes", "Tracking Branch",
-        "\"Remote Tracking (Ahead, Behind)\"",};
+        "Branches", "Remotes", "Tracking Branch", "Remote Tracking", "Ahead",
+        "Behind",};
     public static final String COMMA = ",";
     public static final String ITEM_DELIMITER = "\n";
 
@@ -159,6 +159,7 @@ public class RepositoryModel implements IConstants
             first = true;
             for(String remoteName : remotes) {
                 url = config.getString("remote", remoteName, "url");
+                if(url == null) continue;
                 sb.append((first ? "" : ITEM_DELIMITER) + url);
                 first = false;
             }
@@ -167,14 +168,17 @@ public class RepositoryModel implements IConstants
             // Tracking branch
             String trackingBranch = new BranchConfig(repository.getConfig(),
                 repository.getBranch()).getTrackingBranch();
-            sb.append(trackingBranch + COMMA);
+            if(trackingBranch == null) {
+                sb.append("None" + COMMA);
+            } else {
+                sb.append(trackingBranch + COMMA);
+            }
 
             // Remote tracking
-            sb.append("\"");
+            String remote = "", ahead = "", behind = "";
             List<Integer> counts;
             call = git.branchList().call();
-            if(call.size() == 0) {
-            } else {
+            if(call.size() != 0) {
                 for(Ref refLocal : call) {
                     call1 = git.branchList().setListMode(ListMode.REMOTE)
                         .call();
@@ -183,24 +187,28 @@ public class RepositoryModel implements IConstants
                     }
                     first = true;
                     for(Ref refRemote : call1) {
+                        if(refRemote == null) continue;
                         counts = JGitUtilities.calculateDivergence(repository,
                             refLocal, refRemote);
-                        if(!first) sb.append(ITEM_DELIMITER);
-                        first = false;
-                        sb.append(refLocal.getName() + "/");
-                        sb.append(refRemote.getName() + " (");
-                        if(counts == null) {
-                            sb.append(")");
-                        } else if(counts.size() != 2) {
-                            sb.append("?)");
+                        if(first) {
+                            first = false;
                         } else {
-                            sb.append("+" + counts.get(0) + ", ");
-                            sb.append("-" + counts.get(1) + ")");
+                            remote += ITEM_DELIMITER;
+                            ahead += ITEM_DELIMITER;
+                            behind += ITEM_DELIMITER;
+                        }
+                        remote += refLocal.getName() + " "
+                            + refRemote.getName();
+                        if(counts != null && counts.size() == 2) {
+                            ahead += counts.get(0);
+                            behind += counts.get(1);
                         }
                     }
                 }
             }
-            sb.append("\"" + COMMA);
+            sb.append("\"" + remote + "\"" + COMMA);
+            sb.append("\"" + ahead + "\"" + COMMA);
+            sb.append("\"" + behind + "\"" + COMMA);
         } catch(Exception ex) {
             String msg = "Error getting CSV values";
             Utils.excMsg(msg, ex);
