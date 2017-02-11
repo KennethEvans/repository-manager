@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.prefs.Preferences;
 
 import javax.swing.DefaultListCellRenderer;
@@ -69,11 +70,7 @@ public class RepositoryManager extends JFrame implements IConstants
 
     private ArrayList<RepositoryModel> repositories = new ArrayList<>();
     private RepositoryLocations repositoryLocations;
-
-    /** Keeps the last-used path for the file open dialog. */
-    public String defaultOpenPath;
-    /** Keeps the last-used path for the file save dialog. */
-    public String defaultSavePath;
+    private RepositoriesDialog repositoriesDialog;
 
     // User interface controls (Many do not need to be global)
     private Container contentPane = this.getContentPane();
@@ -116,8 +113,8 @@ public class RepositoryManager extends JFrame implements IConstants
     }
 
     /**
-     * Calculates a list of repositories from the current parent directories and
-     * individual repositories.
+     * Calculates a list of repositories from the current parent directories,
+     * individual repositories, and exclude repositories.
      */
     public void setRepositories() {
         if(repositoryLocations == null) {
@@ -145,10 +142,24 @@ public class RepositoryManager extends JFrame implements IConstants
                 }
             }
         }
+
         // Individual
         for(String dirName : repositoryLocations.getIndividualRepositories()) {
             repositories.add(new RepositoryModel(dirName));
         }
+
+        // Exclude
+        for(String dirName : repositoryLocations.getExcludeRepositories()) {
+            RepositoryModel cur = new RepositoryModel(dirName);
+            for(Iterator<RepositoryModel> iterator = repositories
+                .iterator(); iterator.hasNext();) {
+                RepositoryModel repository = iterator.next();
+                if(repository.getFilePath().equals(cur.getFilePath())) {
+                    iterator.remove();
+                }
+            }
+        }
+
         // Sort them
         Collections.sort(repositories, new Comparator<RepositoryModel>() {
             @Override
@@ -167,14 +178,17 @@ public class RepositoryManager extends JFrame implements IConstants
      * @param individualRepositories
      */
     public void setRepositoryLocations(String[] parentDirectories,
-        String[] individualRepositories) {
+        String[] individualRepositories, String[] excludeRepositories) {
         ArrayList<String> parentDirectoriesList = new ArrayList<String>(
             Arrays.asList(parentDirectories));
         ArrayList<String> individualRepositoriesList = new ArrayList<String>(
             Arrays.asList(individualRepositories));
+        ArrayList<String> excludeRepositoriesList = new ArrayList<String>(
+            Arrays.asList(excludeRepositories));
         repositoryLocations.setParentDirectories(parentDirectoriesList);
         repositoryLocations
             .setIndividualRepositories(individualRepositoriesList);
+        repositoryLocations.setExcludeRepositories(excludeRepositoriesList);
         setRepositories();
     }
 
@@ -456,7 +470,7 @@ public class RepositoryManager extends JFrame implements IConstants
                 JOptionPane.showMessageDialog(null,
                     new AboutBoxPanel(TITLE + " " + VERSION,
                         "Written by Kenneth Evans, Jr.", "kenevans.net",
-                        "Copyright (c) 2016 Kenneth Evans"),
+                        "Copyright (c) 2016-2017 Kenneth Evans"),
                     "About", JOptionPane.PLAIN_MESSAGE);
             }
         });
@@ -728,17 +742,21 @@ public class RepositoryManager extends JFrame implements IConstants
      * Brings up a dialog to manage repositories.
      */
     private void manageRepositories() {
-        RepositoriesDialog dialog = new RepositoriesDialog(this, this);
-        // For modal, use this and dialog.showDialog() instead of
-        // dialog.setVisible(true)
-        // dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
-        dialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-        URL url = RepositoryManager.class
-            .getResource("/resources/repositorymanager.png");
-        if(url != null) {
-            dialog.setIconImage(new ImageIcon(url).getImage());
+        if(repositoriesDialog == null) {
+            // Create it once
+            repositoriesDialog = new RepositoriesDialog(this, this);
+            // For modal, use this and dialog.showDialog() instead of
+            // dialog.setVisible(true)
+            // dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+            repositoriesDialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            URL url = RepositoryManager.class
+                .getResource("/resources/repositorymanager.png");
+            if(url != null) {
+                repositoriesDialog.setIconImage(new ImageIcon(url).getImage());
+            }
         }
-        dialog.setVisible(true);
+        repositoriesDialog.setVisible(true);
+
         // This only returns on Cancel and always returns true. All actions
         // are done from the dialog.
         // dialog.showDialog();
@@ -874,7 +892,13 @@ public class RepositoryManager extends JFrame implements IConstants
             "C:/eclipseWorkspaces/Work/JGit Examples",
             // End
         };
-        setRepositoryLocations(TEST_PARENT_DIRS, TEST_INDIVIDUAL_REPOSITORIES);
+        String[] TEST_EXCLUDE_REPOSITORIES = {
+            // Start
+            "C:/Git/color-thief-java",
+            // End
+        };
+        setRepositoryLocations(TEST_PARENT_DIRS, TEST_INDIVIDUAL_REPOSITORIES,
+            TEST_EXCLUDE_REPOSITORIES);
         refresh();
     }
 

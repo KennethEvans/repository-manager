@@ -20,7 +20,8 @@ public class Settings implements IConstants
 {
     private String jsonRepositoryLocations;
     private RepositoryLocations repositoryLocations = new RepositoryLocations(
-        new ArrayList<String>(), new ArrayList<String>());
+        new ArrayList<String>(), new ArrayList<String>(),
+        new ArrayList<String>());
 
     /**
      * Loads the settings from the preferences

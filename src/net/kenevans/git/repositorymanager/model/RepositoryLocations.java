@@ -16,6 +16,7 @@ public class RepositoryLocations implements IConstants
 {
     private ArrayList<String> parentDirectories = new ArrayList<>();
     private ArrayList<String> individualRepositories = new ArrayList<>();
+    private ArrayList<String> excludeRepositories = new ArrayList<>();
 
     /**
      * RepositoryLocations constructor that sets the parentDirectories and
@@ -23,11 +24,14 @@ public class RepositoryLocations implements IConstants
      * 
      * @param parentDirectories
      * @param individualRepositories
+     * @param excludeRepositories
      */
     public RepositoryLocations(ArrayList<String> parentDirectories,
-        ArrayList<String> individualRepositories) {
+        ArrayList<String> individualRepositories,
+        ArrayList<String> excludeRepositories) {
         this.parentDirectories = parentDirectories;
         this.individualRepositories = individualRepositories;
+        this.excludeRepositories = excludeRepositories;
     }
 
     /**
@@ -44,11 +48,14 @@ public class RepositoryLocations implements IConstants
             .getIndividualRepositories()) {
             individualRepositories.add(string);
         }
+        for(String string : oldRepositoryLocations.getExcludeRepositories()) {
+            excludeRepositories.add(string);
+        }
     }
 
     /**
      * RepositoryLocations constructor that has empty lists for the
-     * parentDirectories and individualRepositories.
+     * parentDirectories, individualRepositories, and excludeRepositories.
      */
     public RepositoryLocations() {
     }
@@ -58,7 +65,6 @@ public class RepositoryLocations implements IConstants
      */
     public void loadFromPreferences() {
         Preferences prefs = RepositoryManager.getUserPreferences();
-
         String jsonRepositoryLocations = prefs.get(P_REPOSITORY_LOCATIONS,
             D_REPOSITORY_LOCATIONS);
         loadFromJsonString(jsonRepositoryLocations);
@@ -103,6 +109,7 @@ public class RepositoryLocations implements IConstants
             && newLocations.getIndividualRepositories() != null) {
             this.parentDirectories = newLocations.parentDirectories;
             this.individualRepositories = newLocations.individualRepositories;
+            this.excludeRepositories = newLocations.excludeRepositories;
         }
     }
 
@@ -176,6 +183,20 @@ public class RepositoryLocations implements IConstants
     public void setIndividualRepositories(
         ArrayList<String> individualRepositories) {
         this.individualRepositories = individualRepositories;
+    }
+
+    /**
+     * @return The value of excludeRepositories.
+     */
+    public ArrayList<String> getExcludeRepositories() {
+        return excludeRepositories;
+    }
+
+    /**
+     * @param excludeRepositories The new value for excludeRepositories.
+     */
+    public void setExcludeRepositories(ArrayList<String> excludeRepositories) {
+        this.excludeRepositories = excludeRepositories;
     }
 
 }
