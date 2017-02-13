@@ -50,7 +50,9 @@ import javax.swing.event.ListSelectionListener;
 import net.kenevans.git.repositorymanager.model.IConstants;
 import net.kenevans.git.repositorymanager.model.RepositoryLocations;
 import net.kenevans.git.repositorymanager.model.RepositoryModel;
+import net.kenevans.git.repositorymanager.preferences.PreferencesDialog;
 import net.kenevans.git.repositorymanager.preferences.RepositoriesDialog;
+import net.kenevans.git.repositorymanager.preferences.Settings;
 import net.kenevans.git.repositorymanager.utils.ImageUtils;
 import net.kenevans.git.repositorymanager.utils.Utils;
 
@@ -68,9 +70,11 @@ public class RepositoryManager extends JFrame implements IConstants
 
     public static final boolean LOAD_TEST_REPOSITORIES = false;
 
+    private Settings settings;
     private ArrayList<RepositoryModel> repositories = new ArrayList<>();
     private RepositoryLocations repositoryLocations;
     private RepositoriesDialog repositoriesDialog;
+    private PreferencesDialog preferencesDialog;
 
     // User interface controls (Many do not need to be global)
     private Container contentPane = this.getContentPane();
@@ -107,6 +111,7 @@ public class RepositoryManager extends JFrame implements IConstants
     public RepositoryManager() {
         repositoryLocations = new RepositoryLocations();
         repositoryLocations.loadFromPreferences();
+        loadUserPreferences();
         getIcons();
         uiInit();
         refresh();
@@ -426,9 +431,6 @@ public class RepositoryManager extends JFrame implements IConstants
         menu.setText("Tools");
         menuBar.add(menu);
 
-        // separator = new JSeparator();
-        // menu.add(separator);
-
         JMenu menu1 = new JMenu();
         menu1.setText("Repositories");
         menu.add(menu1);
@@ -458,6 +460,24 @@ public class RepositoryManager extends JFrame implements IConstants
         });
         menu1.add(menuItem);
 
+        menuItem = new JMenuItem();
+        menuItem.setText("Git Extensions...");
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                startGitExtensions();
+            }
+        });
+        menu.add(menuItem);
+
+        menuItem = new JMenuItem();
+        menuItem.setText("Preferences...");
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                setPreferences();
+            }
+        });
+        menu.add(menuItem);
+
         // Help
         menu = new JMenu();
         menu.setText("Help");
@@ -475,6 +495,77 @@ public class RepositoryManager extends JFrame implements IConstants
             }
         });
         menu.add(menuItem);
+    }
+
+    /**
+     * Updates the info text area.
+     * 
+     * @param model
+     */
+    public void updateInfoText(RepositoryModel model) {
+        String info = "";
+        if(model != null) {
+            info += model.getInfo() + LS;
+        }
+        infoTextArea.setText(info);
+        infoTextArea.setCaretPosition(0);
+    }
+
+    /**
+     * Loads a new model.
+     * 
+     * @param fileName
+     */
+    private void loadModel(final RepositoryModel model) {
+        if(model == null) {
+            Utils.errMsg("loadModel: Model is null");
+            return;
+        }
+
+        // Needs to be done this way to allow the text to change before reading
+        // the image.
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                Cursor oldCursor = getCursor();
+                try {
+                    setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                    updateInfoText(model);
+                } catch(Exception ex) {
+                    String msg = "Error loading model: " + model.getFilePath();
+                    Utils.excMsg(msg, ex);
+                } catch(Error err) {
+                    String msg = "Error loading model: " + model.getFilePath();
+                    Utils.excMsg(msg, err);
+                } finally {
+                    setCursor(oldCursor);
+                }
+            }
+        });
+    }
+
+    /**
+     * Populates the list from the list of profiles.
+     */
+    private void populateList() {
+        list.setEnabled(false);
+        listModel.removeAllElements();
+        for(RepositoryModel model : repositories) {
+            listModel.addElement(model);
+        }
+        list.validate();
+        mainPane.validate();
+        list.setEnabled(true);
+    }
+
+    /**
+     * Handler for the list. Toggles the checked state.
+     * 
+     * @param ev
+     */
+    private void onListItemSelected(ListSelectionEvent ev) {
+        if(ev.getValueIsAdjusting()) return;
+        RepositoryModel model = (RepositoryModel)list.getSelectedValue();
+        if(model != null) loadModel(model);
     }
 
     /**
@@ -674,63 +765,6 @@ public class RepositoryManager extends JFrame implements IConstants
     }
 
     /**
-     * Loads a new model.
-     * 
-     * @param fileName
-     */
-    private void loadModel(final RepositoryModel model) {
-        if(model == null) {
-            Utils.errMsg("loadModel: Model is null");
-            return;
-        }
-
-        // Needs to be done this way to allow the text to change before reading
-        // the image.
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                Cursor oldCursor = getCursor();
-                try {
-                    setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                    updateInfoText(model);
-                } catch(Exception ex) {
-                    String msg = "Error loading model: " + model.getFilePath();
-                    Utils.excMsg(msg, ex);
-                } catch(Error err) {
-                    String msg = "Error loading model: " + model.getFilePath();
-                    Utils.excMsg(msg, err);
-                } finally {
-                    setCursor(oldCursor);
-                }
-            }
-        });
-    }
-
-    /**
-     * Populates the list from the list of profiles.
-     */
-    private void populateList() {
-        list.setEnabled(false);
-        listModel.removeAllElements();
-        for(RepositoryModel model : repositories) {
-            listModel.addElement(model);
-        }
-        list.validate();
-        mainPane.validate();
-        list.setEnabled(true);
-    }
-
-    /**
-     * Handler for the list. Toggles the checked state.
-     * 
-     * @param ev
-     */
-    private void onListItemSelected(ListSelectionEvent ev) {
-        if(ev.getValueIsAdjusting()) return;
-        RepositoryModel model = (RepositoryModel)list.getSelectedValue();
-        if(model != null) loadModel(model);
-    }
-
-    /**
      * Shows model information.
      */
     private void showSummaryDetails() {
@@ -804,20 +838,6 @@ public class RepositoryManager extends JFrame implements IConstants
     }
 
     /**
-     * Updates the info text area.
-     * 
-     * @param model
-     */
-    public void updateInfoText(RepositoryModel model) {
-        String info = "";
-        if(model != null) {
-            info += model.getInfo() + LS;
-        }
-        infoTextArea.setText(info);
-        infoTextArea.setCaretPosition(0);
-    }
-
-    /**
      * Exports a CSV file
      */
     private void exportCSV() {
@@ -849,6 +869,32 @@ public class RepositoryManager extends JFrame implements IConstants
 
         // Save it
         writeCSV(file);
+    }
+
+    /**
+     * Starts Git Extensions for the selected repository.
+     */
+    private void startGitExtensions() {
+        // Get the selected repository
+        RepositoryModel model = (RepositoryModel)list.getSelectedValue();
+        if(model == null) {
+            Utils.errMsg("There is no repository selected");
+            return;
+        }
+        String gitExtensionsPath = settings.getGitExtensionsPath();
+        File file = new File(gitExtensionsPath);
+        if(!file.exists()) {
+            Utils.errMsg(
+                "Path to Git Extensions is invalid" + LS + gitExtensionsPath);
+            return;
+        }
+        String path = model.getFilePath();
+        try {
+            String[] cmd = {gitExtensionsPath, "browse", path};
+            Runtime.getRuntime().exec(cmd);
+        } catch(Exception ex) {
+            Utils.excMsg("Failed to start Git Extensions", ex);
+        }
     }
 
     /**
@@ -915,6 +961,60 @@ public class RepositoryManager extends JFrame implements IConstants
     public void setRepositoryLocations(
         RepositoryLocations repositoryLocations) {
         this.repositoryLocations = repositoryLocations;
+    }
+
+    /**
+     * Set viewer fields from the user preferences.
+     */
+    public void loadUserPreferences() {
+        settings = new Settings();
+        settings.loadFromPreferences();
+    }
+
+    /**
+     * Brings up a dialog to set preferences.
+     */
+    private void setPreferences() {
+        if(preferencesDialog == null) {
+            preferencesDialog = new PreferencesDialog(this, this);
+            // For modal, use this and dialog.showDialog() instead of
+            // dialog.setVisible(true)
+            // dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+            preferencesDialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            URL url = RepositoryManager.class
+                .getResource("/resources/repositorymanager.png");
+            if(url != null) {
+                preferencesDialog.setIconImage(new ImageIcon(url).getImage());
+            }
+        }
+        preferencesDialog.setVisible(true);
+        // This only returns on Cancel and always returns true. All actions are
+        // done from the dialog.
+        // dialog.showDialog();
+    }
+
+    /**
+     * Copies the given settings to settings and resets the viewer.
+     * 
+     * @param settings
+     */
+    public void onPreferenceReset(Settings settings) {
+        // Copy from the given settings.
+        this.settings.copyFrom(settings);
+    }
+
+    /**
+     * @return The value of settings.
+     */
+    public Settings getSettings() {
+        return settings;
+    }
+
+    /**
+     * @param settings The new value for settings.
+     */
+    public void setSettings(Settings settings) {
+        this.settings = settings;
     }
 
     /**

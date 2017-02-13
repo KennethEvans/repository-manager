@@ -60,4 +60,11 @@ public interface IConstants
     /*** The default value for the default directory for finding GPX files. */
     public static final String D_REPOSITORY_LOCATIONS = "";
 
+    /*** The preference name for the Git Extensions path. */
+    public static final String P_GIT_EXTENSIONS_PATH = "gitExtensionsPath";
+    /***
+     * The default value for the default directory for the Git Extensions path.
+     */
+    public static final String D_GIT_EXTENSIONS_PATH = "C:\\Program Files (x86)\\GitExtensions\\GitExtensions.exe";
+
 }

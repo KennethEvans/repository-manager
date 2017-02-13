@@ -102,11 +102,6 @@ public class RepositoryModel implements IConstants
     /**
      * Gets the status and branch tracking of the repository locations.
      * 
-     * @param doStatus Show the status or not.
-     * @param doBranchTracking Show the tracking or not.
-     * @param doRemotes Show the remotes or not for full.
-     * @param full For the status show the full status even if clean. Otherwise
-     *            just show clean and tracking.
      */
     private String getCVSSummary() {
         StringBuilder sb = new StringBuilder();

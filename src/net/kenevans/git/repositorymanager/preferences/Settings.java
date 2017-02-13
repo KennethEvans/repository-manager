@@ -22,6 +22,7 @@ public class Settings implements IConstants
     private RepositoryLocations repositoryLocations = new RepositoryLocations(
         new ArrayList<String>(), new ArrayList<String>(),
         new ArrayList<String>());
+    private String gitExtensionsPath = D_GIT_EXTENSIONS_PATH;
 
     /**
      * Loads the settings from the preferences
@@ -42,6 +43,9 @@ public class Settings implements IConstants
             && newLocations.getIndividualRepositories() != null) {
             repositoryLocations = newLocations;
         }
+        gitExtensionsPath = prefs.get(P_GIT_EXTENSIONS_PATH,
+            D_GIT_EXTENSIONS_PATH);
+
     }
 
     /**
@@ -65,6 +69,7 @@ public class Settings implements IConstants
             // System.out.println(
             // "Save: jsonRepositoryLocations=" + jsonRepositoryLocations);
             prefs.put(P_REPOSITORY_LOCATIONS, jsonRepositoryLocations);
+            prefs.put(P_GIT_EXTENSIONS_PATH, gitExtensionsPath);
         } catch(Exception ex) {
             retVal = false;
             if(showErrors) {
@@ -147,6 +152,7 @@ public class Settings implements IConstants
      */
     public void copyFrom(Settings settings) {
         this.jsonRepositoryLocations = settings.jsonRepositoryLocations;
+        this.gitExtensionsPath = settings.gitExtensionsPath;
     }
 
     /**
@@ -176,6 +182,20 @@ public class Settings implements IConstants
     public void setRepositoryLocations(
         RepositoryLocations repositoryLocations) {
         this.repositoryLocations = repositoryLocations;
+    }
+
+    /**
+     * @return The value of gitExtensionsPath.
+     */
+    public String getGitExtensionsPath() {
+        return gitExtensionsPath;
+    }
+
+    /**
+     * @param gitExtensionsPath The new value for gitExtensionsPath.
+     */
+    public void setGitExtensionsPath(String gitExtensionsPath) {
+        this.gitExtensionsPath = gitExtensionsPath;
     }
 
 }
