@@ -102,6 +102,7 @@ public class RepositoryManager extends JFrame implements IConstants
     private Image pullImage;
     private Image notFoundImage;
     private Image notTrackingImage;
+    private Image noRemoteImage;
 
     private int jPanelHeight;
 
@@ -219,6 +220,9 @@ public class RepositoryManager extends JFrame implements IConstants
         image = ImageUtils.getImageFromClassResource(this.getClass(),
             "/resources/nottracking.png");
         notTrackingImage = ImageUtils.resize(image, jPanelHeight, jPanelHeight);
+        image = ImageUtils.getImageFromClassResource(this.getClass(),
+            "/resources/noremote.png");
+        noRemoteImage = ImageUtils.resize(image, jPanelHeight, jPanelHeight);
     }
 
     /**
@@ -306,17 +310,22 @@ public class RepositoryManager extends JFrame implements IConstants
                         g.drawImage(commitImage, pos, 0, null);
                         pos += jPanelHeight;
                     }
-                    if(model.isNotTracking()) {
-                        g.drawImage(notTrackingImage, pos, 0, null);
+                    if(model.isNoRemote()) {
+                        g.drawImage(noRemoteImage, pos, 0, null);
                         pos += jPanelHeight;
                     } else {
-                        if(model.isBehind()) {
-                            g.drawImage(pullImage, pos, 0, null);
+                        if(model.isNotTracking()) {
+                            g.drawImage(notTrackingImage, pos, 0, null);
                             pos += jPanelHeight;
-                        }
-                        if(model.isAhead()) {
-                            g.drawImage(pushImage, pos, 0, null);
-                            pos += jPanelHeight;
+                        } else {
+                            if(model.isBehind()) {
+                                g.drawImage(pullImage, pos, 0, null);
+                                pos += jPanelHeight;
+                            }
+                            if(model.isAhead()) {
+                                g.drawImage(pushImage, pos, 0, null);
+                                pos += jPanelHeight;
+                            }
                         }
                     }
                 }
@@ -619,6 +628,7 @@ public class RepositoryManager extends JFrame implements IConstants
         int behindCount = 0;
         int notTrackingCount = 0;
         int notFoundCount = 0;
+        int noRemoteCount = 0;
         for(RepositoryModel model : repositories) {
             model.calculateState();
             totalCount++;
@@ -637,6 +647,9 @@ public class RepositoryManager extends JFrame implements IConstants
             if(model.isNotFound()) {
                 notFoundCount++;
             }
+            if(model.isNoRemote()) {
+                noRemoteCount++;
+            }
         }
 
         StringBuilder sb = new StringBuilder();
@@ -646,7 +659,8 @@ public class RepositoryManager extends JFrame implements IConstants
         Utils.appendLine(sb,
             "Total: " + totalCount + ", Dirty: " + dirtyCount + ", Behind: "
                 + behindCount + ", Ahead: " + aheadCount + ", Not tracking: "
-                + notTrackingCount + ", Not found: " + notFoundCount);
+                + notTrackingCount + ", No remote: " + noRemoteCount
+                + ", Not found: " + notFoundCount);
         return sb.toString();
     }
 
