@@ -30,7 +30,7 @@ public class RepositoryModel implements IConstants
     private boolean isBehind;
     private boolean isNotTracking;
     private boolean isNotFound;
-    private boolean isNoRemote;
+    private boolean isNoRemoteBranches;
     private static final String[] CVS_HEADINGS = new String[] {"Name", "Clean",
         "Added", "Changed", "Conflicting", "Conflicting Stage State", "Ignored",
         "Missing", "Modified", "Removed:", "Untracked", "Untracked Folders",
@@ -60,7 +60,7 @@ public class RepositoryModel implements IConstants
         isBehind = false;
         isNotTracking = false;
         isNotFound = false;
-        isNoRemote = false;
+        isNoRemoteBranches = false;
         try {
             try {
                 git = Git.open(file);
@@ -94,7 +94,7 @@ public class RepositoryModel implements IConstants
                             }
                         }
                     } else {
-                        isNoRemote = true;
+                        isNoRemoteBranches = true;
                     }
                 }
             }
@@ -446,10 +446,10 @@ public class RepositoryModel implements IConstants
     }
 
     /**
-     * @return The value of isNoRemote.
+     * @return The value of isNoRemoteBranches.
      */
-    public boolean isNoRemote() {
-        return isNoRemote;
+    public boolean isNoRemoteBranches() {
+        return isNoRemoteBranches;
     }
 
     /**

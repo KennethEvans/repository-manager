@@ -310,7 +310,7 @@ public class RepositoryManager extends JFrame implements IConstants
                         g.drawImage(commitImage, pos, 0, null);
                         pos += jPanelHeight;
                     }
-                    if(model.isNoRemote()) {
+                    if(model.isNoRemoteBranches()) {
                         g.drawImage(noRemoteImage, pos, 0, null);
                         pos += jPanelHeight;
                     } else {
@@ -440,6 +440,15 @@ public class RepositoryManager extends JFrame implements IConstants
         menu.setText("Tools");
         menuBar.add(menu);
 
+        menuItem = new JMenuItem();
+        menuItem.setText("Git Extensions...");
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                startGitExtensions();
+            }
+        });
+        menu.add(menuItem);
+
         JMenu menu1 = new JMenu();
         menu1.setText("Repositories");
         menu.add(menu1);
@@ -468,15 +477,6 @@ public class RepositoryManager extends JFrame implements IConstants
             }
         });
         menu1.add(menuItem);
-
-        menuItem = new JMenuItem();
-        menuItem.setText("Git Extensions...");
-        menuItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                startGitExtensions();
-            }
-        });
-        menu.add(menuItem);
 
         menuItem = new JMenuItem();
         menuItem.setText("Preferences...");
@@ -628,7 +628,7 @@ public class RepositoryManager extends JFrame implements IConstants
         int behindCount = 0;
         int notTrackingCount = 0;
         int notFoundCount = 0;
-        int noRemoteCount = 0;
+        int noRemoteBranchesCount = 0;
         for(RepositoryModel model : repositories) {
             model.calculateState();
             totalCount++;
@@ -647,8 +647,8 @@ public class RepositoryManager extends JFrame implements IConstants
             if(model.isNotFound()) {
                 notFoundCount++;
             }
-            if(model.isNoRemote()) {
-                noRemoteCount++;
+            if(model.isNoRemoteBranches()) {
+                noRemoteBranchesCount++;
             }
         }
 
@@ -659,8 +659,8 @@ public class RepositoryManager extends JFrame implements IConstants
         Utils.appendLine(sb,
             "Total: " + totalCount + ", Dirty: " + dirtyCount + ", Behind: "
                 + behindCount + ", Ahead: " + aheadCount + ", Not tracking: "
-                + notTrackingCount + ", No remote: " + noRemoteCount
-                + ", Not found: " + notFoundCount);
+                + notTrackingCount + ", No remote branches: "
+                + noRemoteBranchesCount + ", Not found: " + notFoundCount);
         return sb.toString();
     }
 
