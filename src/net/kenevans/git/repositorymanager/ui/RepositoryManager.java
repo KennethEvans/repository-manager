@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -54,6 +55,7 @@ import net.kenevans.git.repositorymanager.preferences.PreferencesDialog;
 import net.kenevans.git.repositorymanager.preferences.RepositoriesDialog;
 import net.kenevans.git.repositorymanager.preferences.Settings;
 import net.kenevans.git.repositorymanager.utils.ImageUtils;
+import net.kenevans.git.repositorymanager.utils.ScrolledHTMLDialog;
 import net.kenevans.git.repositorymanager.utils.Utils;
 
 /**
@@ -75,6 +77,7 @@ public class RepositoryManager extends JFrame implements IConstants
     private RepositoryLocations repositoryLocations;
     private RepositoriesDialog repositoriesDialog;
     private PreferencesDialog preferencesDialog;
+    private ScrolledHTMLDialog overviewDialog;
 
     // User interface controls (Many do not need to be global)
     private Container contentPane = this.getContentPane();
@@ -493,6 +496,15 @@ public class RepositoryManager extends JFrame implements IConstants
         menuBar.add(menu);
 
         menuItem = new JMenuItem();
+        menuItem.setText("Overview...");
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                overview();
+            }
+        });
+        menu.add(menuItem);
+
+        menuItem = new JMenuItem();
         menuItem.setText("About");
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
@@ -909,6 +921,30 @@ public class RepositoryManager extends JFrame implements IConstants
         } catch(Exception ex) {
             Utils.excMsg("Failed to start Git Extensions", ex);
         }
+    }
+
+    private void overview() {
+        String resource = "/resources/RepositoryManagerHelp.htm";
+        URL contentsUrl = ScrolledHTMLDialog.class.getResource(resource);
+        if(contentsUrl == null) {
+            System.err.println("Couldn't find file: " + resource);
+            return;
+        }
+        if(overviewDialog == null) {
+            overviewDialog = new ScrolledHTMLDialog(this, contentsUrl);
+            overviewDialog.setTitle("Overview");
+            overviewDialog.setSize(new Dimension(500, 500));
+            // For modal, use this and dialog.showDialog() instead of
+            // dialog.setVisible(true)
+            // dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+            overviewDialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            URL url = RepositoryManager.class
+                .getResource("/resources/repositorymanager.png");
+            if(url != null) {
+                overviewDialog.setIconImage(new ImageIcon(url).getImage());
+            }
+        }
+        overviewDialog.setVisible(true);
     }
 
     /**

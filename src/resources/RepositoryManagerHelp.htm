@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en-us">
+<title>Styled Text Sample</title>
+<body>
+<img src="repositorymanager.png" width="64" height="64" alt="Image"/>
+<p>Repository Manager is a Java application to help manage a large number of repositories. The main value of the application is in easily seeing what repositories may need attention. </p>
+<p><strong>Interface</strong></p>
+<p>There is summary at the top. The lower part has a list of repositories on the left, and information about the selected repository on the right. There are icons next to the repository name indicating what may need to be done for  that repository. </p>
+<p><strong>List of Repositories </strong></p>
+<p>Use Manage Repositories from Tools | Repositories | Manage Repositories to set the list of repositories to manage. You can choose: </p>
+<ul>
+  <li>Parent directories, such as a workspace directory, which contain subdirectories, typically projects with a .git directory.Only the subdirectories with .git repositories will be included in the list.</li>
+  <li>Single directories which contain a .git repository.</li>
+  <li>Single directories to be excluded from the list.</li>
+</ul>
+<p>The directory to specify is the one that contains the .git repository, not the .git directory itself. In the case of parent directories, it is a directory that contains directories with .git repositories.</p>
+<p><strong>Icons</strong></p>
+<p><img src="commit.png" alt="Commit Image" width="32" height="32" align="middle"/> Needs to be committed.</p>
+<p> <img src="push.png" alt="Push Image" width="32" height="32" align="middle"/> Needs to be pushed. </p>
+<p> <img src="pull.png" alt="Pull Image" width="32" height="32" align="middle"/> Needs to be pulled. </p>
+<p> <img src="nottracking.png" alt="No Tracking Image" width="32" height="32" align="middle"/> Is not tracking. </p>
+<p> <img src="noremote.png" alt="No Remote Branches Image" width="32" height="32" align="middle"/> Has no remote branches. </p>
+<p> <img src="notfound.png" alt="Commit Image" width="32" height="32" align="middle"/> Not found, perhaps bare. </p>
+<p><strong>File Menu </strong></p>
+<p>Refresh gets the current repository information.</p>
+<p>Show Summary Details gives a short summary of the overall status.</p>
+<p>Export allows you to export a CSV file with information about the current state of each repository. </p>
+<p>Exit quits the application. </p>
+<p><strong>Tools Menu</strong></p>
+<p>Git Extensions brings up Git Extensions for the selected repository. You must have Git  Extensions installed. You can use Git Extensions to do things like Commit, Push, Pull, etc. (These operations are unlikely to be incorporated in Repository Manager.) You can set the path to the Git Extensions executable in Tools | Preferences. </p>
+<p>Repositories | Manage Repositories brings up a dialog to set the repository list. There are several options as to where to set the list and from where to restore it. The dialog stays up until cancelled. </p>
+<p>Repositories | Store Repositories stores the current list in permanent storage. On startup, Repository Manager uses the settings from permanent storage. The permanent storage is Java's  implementation-dependent backing store. </p>
+<p>Preferences bring up a dialog to set application preferences. </p>
+<p><strong>Help Menu</strong></p>
+<p>There are options for an overview dialog and an about dialog. </p>
+</body>
+</html>
