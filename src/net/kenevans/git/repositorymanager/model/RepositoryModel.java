@@ -28,6 +28,8 @@ public class RepositoryModel implements IConstants
     private boolean isClean;
     private boolean isAhead;
     private boolean isBehind;
+    private boolean isNonTrackingAhead;
+    private boolean isNonTrackingBehind;
     private boolean isNotTracking;
     private boolean isNotFound;
     private boolean isNoRemoteBranches;
@@ -58,6 +60,8 @@ public class RepositoryModel implements IConstants
         isClean = false;
         isAhead = false;
         isBehind = false;
+        isNonTrackingAhead = false;
+        isNonTrackingBehind = false;
         isNotTracking = false;
         isNotFound = false;
         isNoRemoteBranches = false;
@@ -72,7 +76,12 @@ public class RepositoryModel implements IConstants
             isClean = status.isClean();
             repository = git.getRepository();
 
+            // Tracking branch
+            String trackingBranch = new BranchConfig(repository.getConfig(),
+                repository.getBranch()).getTrackingBranch();
+
             // Loop over local branches
+            String remoteName;
             List<Integer> counts;
             call = git.branchList().call();
             if(call.size() > 0) {
@@ -81,16 +90,31 @@ public class RepositoryModel implements IConstants
                         .call();
                     if(call1.size() > 0) {
                         for(Ref refRemote : call1) {
+                            remoteName = refRemote.getName();
                             counts = JGitUtilities.calculateDivergence(
                                 repository, refLocal, refRemote);
-                            if(counts.get(0) > 0) {
-                                isAhead = true;
-                            }
-                            if(counts.get(1) > 0) {
-                                isBehind = true;
-                            }
-                            if(counts.get(0) < 0 || counts.get(1) < 0) {
-                                isNotTracking = true;
+                            // Check if it is the tracking branch
+                            if(trackingBranch != null && remoteName != null
+                                && remoteName.equals(trackingBranch)) {
+                                if(counts.get(0) > 0) {
+                                    isAhead = true;
+                                }
+                                if(counts.get(1) > 0) {
+                                    isBehind = true;
+                                }
+                                if(counts.get(0) < 0 || counts.get(1) < 0) {
+                                    isNotTracking = true;
+                                }
+                            } else {
+                                if(counts.get(0) > 0) {
+                                    isNonTrackingAhead = true;
+                                }
+                                if(counts.get(1) > 0) {
+                                    isNonTrackingBehind = true;
+                                }
+                                if(counts.get(0) < 0 || counts.get(1) < 0) {
+                                    isNotTracking = true;
+                                }
                             }
                         }
                     } else {
@@ -450,6 +474,20 @@ public class RepositoryModel implements IConstants
      */
     public boolean isNoRemoteBranches() {
         return isNoRemoteBranches;
+    }
+
+    /**
+     * @return The value of isNonTrackingAhead.
+     */
+    public boolean isNonTrackingAhead() {
+        return isNonTrackingAhead;
+    }
+
+    /**
+     * @return The value of isNonTrackingBehind.
+     */
+    public boolean isNonTrackingBehind() {
+        return isNonTrackingBehind;
     }
 
     /**

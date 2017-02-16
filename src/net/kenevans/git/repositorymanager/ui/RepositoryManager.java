@@ -103,6 +103,8 @@ public class RepositoryManager extends JFrame implements IConstants
     private Image commitImage;
     private Image pushImage;
     private Image pullImage;
+    private Image nonTrackingPushImage;
+    private Image nonTrackingPullImage;
     private Image notFoundImage;
     private Image notTrackingImage;
     private Image noRemoteImage;
@@ -218,6 +220,14 @@ public class RepositoryManager extends JFrame implements IConstants
             "/resources/pull.png");
         pullImage = ImageUtils.resize(image, jPanelHeight, jPanelHeight);
         image = ImageUtils.getImageFromClassResource(this.getClass(),
+            "/resources/nontrackingpush.png");
+        nonTrackingPushImage = ImageUtils.resize(image, jPanelHeight,
+            jPanelHeight);
+        image = ImageUtils.getImageFromClassResource(this.getClass(),
+            "/resources/nontrckingpull.png");
+        nonTrackingPullImage = ImageUtils.resize(image, jPanelHeight,
+            jPanelHeight);
+        image = ImageUtils.getImageFromClassResource(this.getClass(),
             "/resources/notfound.png");
         notFoundImage = ImageUtils.resize(image, jPanelHeight, jPanelHeight);
         image = ImageUtils.getImageFromClassResource(this.getClass(),
@@ -324,9 +334,15 @@ public class RepositoryManager extends JFrame implements IConstants
                             if(model.isBehind()) {
                                 g.drawImage(pullImage, pos, 0, null);
                                 pos += jPanelHeight;
+                            } else if(model.isNonTrackingBehind()) {
+                                g.drawImage(nonTrackingPullImage, pos, 0, null);
+                                pos += jPanelHeight;
                             }
                             if(model.isAhead()) {
                                 g.drawImage(pushImage, pos, 0, null);
+                                pos += jPanelHeight;
+                            } else if(model.isNonTrackingAhead()) {
+                                g.drawImage(nonTrackingPushImage, pos, 0, null);
                                 pos += jPanelHeight;
                             }
                         }
@@ -400,16 +416,6 @@ public class RepositoryManager extends JFrame implements IConstants
         });
         menu.add(menuItem);
 
-        // Show summary details
-        menuItem = new JMenuItem();
-        menuItem.setText("Show Summary Details...");
-        menuItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                showSummaryDetails();
-            }
-        });
-        menu.add(menuItem);
-
         // Export
         JMenu exportMenu = new JMenu();
         exportMenu.setText("Export...");
@@ -448,6 +454,16 @@ public class RepositoryManager extends JFrame implements IConstants
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
                 startGitExtensions();
+            }
+        });
+        menu.add(menuItem);
+
+        // Show summary details
+        menuItem = new JMenuItem();
+        menuItem.setText("Show Summary Details...");
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                showSummaryDetails();
             }
         });
         menu.add(menuItem);
@@ -638,6 +654,8 @@ public class RepositoryManager extends JFrame implements IConstants
         int dirtyCount = 0;
         int aheadCount = 0;
         int behindCount = 0;
+        int nonTrackingAheadCount = 0;
+        int nonTrackingBehindCount = 0;
         int notTrackingCount = 0;
         int notFoundCount = 0;
         int noRemoteBranchesCount = 0;
@@ -652,6 +670,12 @@ public class RepositoryManager extends JFrame implements IConstants
             }
             if(model.isBehind()) {
                 behindCount++;
+            }
+            if(model.isNonTrackingAhead()) {
+                nonTrackingAheadCount++;
+            }
+            if(model.isNonTrackingBehind()) {
+                nonTrackingBehindCount++;
             }
             if(model.isNotTracking()) {
                 notTrackingCount++;
@@ -670,8 +694,10 @@ public class RepositoryManager extends JFrame implements IConstants
         Utils.appendLS(sb);
         Utils.appendLine(sb,
             "Total: " + totalCount + ", Dirty: " + dirtyCount + ", Behind: "
-                + behindCount + ", Ahead: " + aheadCount + ", Not tracking: "
-                + notTrackingCount + ", No remote branches: "
+                + behindCount + ", Non-Tracking Behind: "
+                + nonTrackingBehindCount + ", Ahead: " + aheadCount
+                + ", Non-Tracking Ahead: " + nonTrackingAheadCount + LS
+                + "Not tracking: " + notTrackingCount + ", No remote branches: "
                 + noRemoteBranchesCount + ", Not found: " + notFoundCount);
         return sb.toString();
     }
@@ -686,11 +712,15 @@ public class RepositoryManager extends JFrame implements IConstants
         int dirtyCount = 0;
         int aheadCount = 0;
         int behindCount = 0;
+        int nonTrackingAheadCount = 0;
+        int nonTrackingBehindCount = 0;
         int notTrackingCount = 0;
         int notFoundCount = 0;
         ArrayList<String> dirtyFiles = new ArrayList<>();
         ArrayList<String> aheadFiles = new ArrayList<>();
         ArrayList<String> behindFiles = new ArrayList<>();
+        ArrayList<String> nonTrackingAheadFiles = new ArrayList<>();
+        ArrayList<String> nonTrackingBehindFiles = new ArrayList<>();
         ArrayList<String> notTrackingFiles = new ArrayList<>();
         ArrayList<String> notFoundFiles = new ArrayList<>();
         for(RepositoryModel model : repositories) {
@@ -708,6 +738,14 @@ public class RepositoryManager extends JFrame implements IConstants
                 behindCount++;
                 behindFiles.add(model.getFilePath());
             }
+            if(model.isNonTrackingAhead()) {
+                nonTrackingAheadCount++;
+                nonTrackingAheadFiles.add(model.getFilePath());
+            }
+            if(model.isNonTrackingBehind()) {
+                nonTrackingBehindCount++;
+                nonTrackingBehindFiles.add(model.getFilePath());
+            }
             if(model.isNotTracking()) {
                 notTrackingCount++;
                 notTrackingFiles.add(model.getFilePath());
@@ -724,9 +762,12 @@ public class RepositoryManager extends JFrame implements IConstants
         String tab = "    ";
         Utils.appendLS(sb);
         Utils.appendLine(sb,
-            "Total: " + totalCount + ", Dirty: " + dirtyCount + ", Behind: "
-                + behindCount + ", Ahead: " + aheadCount + ", Not tracking: "
-                + notTrackingCount + ", Not found: " + notFoundCount);
+            "Total: " + totalCount + ", Dirty: " + dirtyCount + LS + "Behind: "
+                + behindCount + ", Non_Tracking Behind: "
+                + nonTrackingBehindCount + LS + "Ahead: " + aheadCount
+                + ", Non-Tracking Ahead: " + nonTrackingAheadCount + LS
+                + "Not tracking: " + notTrackingCount + ", Not found: "
+                + notFoundCount);
         if(dirtyCount > 0) {
             Utils.appendLS(sb);
             Utils.appendLine(sb, "Dirty");
@@ -745,6 +786,20 @@ public class RepositoryManager extends JFrame implements IConstants
             Utils.appendLS(sb);
             Utils.appendLine(sb, "Ahead");
             for(String fileName : aheadFiles) {
+                Utils.appendLine(sb, tab + fileName);
+            }
+        }
+        if(nonTrackingBehindCount > 0) {
+            Utils.appendLS(sb);
+            Utils.appendLine(sb, "Non-Tracking Behind");
+            for(String fileName : nonTrackingBehindFiles) {
+                Utils.appendLine(sb, tab + fileName);
+            }
+        }
+        if(nonTrackingAheadCount > 0) {
+            Utils.appendLS(sb);
+            Utils.appendLine(sb, "Non-Tracking Ahead");
+            for(String fileName : nonTrackingAheadFiles) {
                 Utils.appendLine(sb, tab + fileName);
             }
         }
@@ -924,7 +979,7 @@ public class RepositoryManager extends JFrame implements IConstants
     }
 
     private void overview() {
-        String resource = "/resources/RepositoryManagerHelp.htm";
+        String resource = "/resources/RepositoryManager.htm";
         URL contentsUrl = ScrolledHTMLDialog.class.getResource(resource);
         if(contentsUrl == null) {
             System.err.println("Couldn't find file: " + resource);
