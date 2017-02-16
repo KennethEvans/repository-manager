@@ -183,7 +183,10 @@ public class RepositoryModel implements IConstants
             for(String remoteName : remotes) {
                 url = config.getString("remote", remoteName, "url");
                 if(url == null) continue;
-                sb.append((first ? "" : ITEM_DELIMITER) + url);
+                if(!first) {
+                    sb.append(ITEM_DELIMITER);
+                }
+                sb.append(remoteName + " " + url);
                 first = false;
             }
             sb.append("\"" + COMMA);
