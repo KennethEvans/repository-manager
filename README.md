@@ -4,4 +4,8 @@ Repository Manager is an Eclipse project for a Java application to help manage a
 
 See https://kennethevans.github.io/Projects/Repository%20Manager/Help/RepositoryManagerHelp.htm.
 
-For this and more projects from the same author see https://kennethevans.github.io.
+**More information**
+
+More information and FAQ are at https://kennethevans.github.io as well as more projects from the same author.
+
+Licensed under the MIT license. (See: https://en.wikipedia.org/wiki/MIT_License)
