@@ -945,7 +945,7 @@ public class RepositoryManager extends JFrame implements IConstants
                 "File already exists:" + LS + fileName + "\nOK to replace?",
                 "Warning", JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.WARNING_MESSAGE);
-            if(selection != JOptionPane.OK_OPTION) ;
+            if(selection != JOptionPane.OK_OPTION) return;
         }
 
         // Save it
