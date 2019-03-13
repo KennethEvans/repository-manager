@@ -5,7 +5,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
-import java.awt.Frame;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -26,8 +26,6 @@ import java.util.prefs.Preferences;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -251,6 +249,7 @@ public class RepositoryManager extends JFrame implements IConstants
         summaryTextArea = new JTextArea("Welcome to Repository Monitor");
         summaryTextArea.setEditable(false);
         summaryTextArea.setColumns(40);
+        summaryTextArea.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
         JScrollPane summaryScrollPane = new JScrollPane(summaryTextArea);
         summaryPanel.add(summaryScrollPane, BorderLayout.CENTER);
 
@@ -363,6 +362,7 @@ public class RepositoryManager extends JFrame implements IConstants
         infoTextArea = new JTextArea();
         infoTextArea.setEditable(false);
         infoTextArea.setColumns(40);
+        infoTextArea.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
         JScrollPane infoScrollPane = new JScrollPane(infoTextArea);
         infoPanel.add(infoScrollPane, BorderLayout.CENTER);
 
@@ -691,14 +691,13 @@ public class RepositoryManager extends JFrame implements IConstants
         StringBuilder sb = new StringBuilder();
 
         // Summary
-        Utils.appendLS(sb);
-        Utils.appendLine(sb,
-            "Total: " + totalCount + ", Dirty: " + dirtyCount + ", Behind: "
-                + behindCount + ", Non-Tracking Behind: "
-                + nonTrackingBehindCount + ", Ahead: " + aheadCount
-                + ", Non-Tracking Ahead: " + nonTrackingAheadCount + LS
-                + "Not tracking: " + notTrackingCount + ", No remote branches: "
-                + noRemoteBranchesCount + ", Not found: " + notFoundCount);
+        sb.append(LS);
+        sb.append("Total: " + totalCount + ", Dirty: " + dirtyCount
+            + ", Behind: " + behindCount + ", Non-Tracking Behind: "
+            + nonTrackingBehindCount + ", Ahead: " + aheadCount
+            + ", Non-Tracking Ahead: " + nonTrackingAheadCount + LS
+            + "Not tracking: " + notTrackingCount + ", No remote branches: "
+            + noRemoteBranchesCount + ", Not found: " + notFoundCount + LS);
         return sb.toString();
     }
 
@@ -760,61 +759,60 @@ public class RepositoryManager extends JFrame implements IConstants
 
         // Summary
         String tab = "    ";
-        Utils.appendLS(sb);
-        Utils.appendLine(sb,
-            "Total: " + totalCount + ", Dirty: " + dirtyCount + LS + "Behind: "
-                + behindCount + ", Non_Tracking Behind: "
-                + nonTrackingBehindCount + LS + "Ahead: " + aheadCount
-                + ", Non-Tracking Ahead: " + nonTrackingAheadCount + LS
-                + "Not tracking: " + notTrackingCount + ", Not found: "
-                + notFoundCount);
+        sb.append(LS);
+        sb.append("Total: " + totalCount + ", Dirty: " + dirtyCount + LS
+            + "Behind: " + behindCount + ", Non_Tracking Behind: "
+            + nonTrackingBehindCount + LS + "Ahead: " + aheadCount
+            + ", Non-Tracking Ahead: " + nonTrackingAheadCount + LS
+            + "Not tracking: " + notTrackingCount + ", Not found: "
+            + notFoundCount + LS);
         if(dirtyCount > 0) {
-            Utils.appendLS(sb);
-            Utils.appendLine(sb, "Dirty");
+            sb.append(LS);
+            sb.append("Dirty" + LS);
             for(String string : dirtyFiles) {
-                Utils.appendLine(sb, tab + string);
+                sb.append(tab + string + LS);
             }
         }
         if(behindCount > 0) {
-            Utils.appendLS(sb);
-            Utils.appendLine(sb, "Behind");
+            sb.append(LS);
+            sb.append("Behind" + LS);
             for(String fileName : behindFiles) {
-                Utils.appendLine(sb, tab + fileName);
+                sb.append(tab + fileName + LS);
             }
         }
         if(aheadCount > 0) {
-            Utils.appendLS(sb);
-            Utils.appendLine(sb, "Ahead");
+            sb.append(LS);
+            sb.append("Ahead" + LS);
             for(String fileName : aheadFiles) {
-                Utils.appendLine(sb, tab + fileName);
+                sb.append(tab + fileName + LS);
             }
         }
         if(nonTrackingBehindCount > 0) {
-            Utils.appendLS(sb);
-            Utils.appendLine(sb, "Non-Tracking Behind");
+            sb.append(LS);
+            sb.append("Non-Tracking Behind" + LS);
             for(String fileName : nonTrackingBehindFiles) {
-                Utils.appendLine(sb, tab + fileName);
+                sb.append(tab + fileName + LS);
             }
         }
         if(nonTrackingAheadCount > 0) {
-            Utils.appendLS(sb);
-            Utils.appendLine(sb, "Non-Tracking Ahead");
+            sb.append(LS);
+            sb.append("Non-Tracking Ahead" + LS);
             for(String fileName : nonTrackingAheadFiles) {
-                Utils.appendLine(sb, tab + fileName);
+                sb.append(tab + fileName + LS);
             }
         }
         if(notTrackingCount > 0) {
-            Utils.appendLS(sb);
-            Utils.appendLine(sb, "Not Tracking");
+            sb.append(LS);
+            sb.append("Not Tracking" + LS);
             for(String fileName : notTrackingFiles) {
-                Utils.appendLine(sb, tab + fileName);
+                sb.append(tab + fileName + LS);
             }
         }
         if(notFoundCount > 0) {
-            Utils.appendLS(sb);
-            Utils.appendLine(sb, "Not Found");
+            sb.append(LS);
+            sb.append("Not Found" + LS);
             for(String fileName : notFoundFiles) {
-                Utils.appendLine(sb, tab + fileName);
+                sb.append(tab + fileName + LS);
             }
         }
         return sb.toString();
@@ -849,7 +847,7 @@ public class RepositoryManager extends JFrame implements IConstants
      * Shows model information.
      */
     private void showSummaryDetails() {
-        scrolledTextMsg(null, getSummaryDetails(), "Summary Details",
+        Utils.scrolledTextMsg(this, getSummaryDetails(), "Summary Details",
             DETAILS_WIDTH, DETAILS_HEIGHT);
     }
 
@@ -875,47 +873,6 @@ public class RepositoryManager extends JFrame implements IConstants
         // This only returns on Cancel and always returns true. All actions
         // are done from the dialog.
         // dialog.showDialog();
-    }
-
-    /**
-     * Displays a scrolled text dialog with the given message.
-     * 
-     * @param message
-     */
-    public static void scrolledTextMsg(Frame parent, String message,
-        String title, int width, int height) {
-        final JDialog dialog = new JDialog(parent);
-
-        // Message
-        JPanel jPanel = new JPanel();
-        JTextArea textArea = new JTextArea(message);
-        textArea.setEditable(false);
-        textArea.setCaretPosition(0);
-
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        jPanel.add(scrollPane, BorderLayout.CENTER);
-        dialog.getContentPane().add(scrollPane);
-
-        // Close button
-        jPanel = new JPanel();
-        JButton button = new JButton("OK");
-        jPanel.add(button);
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dialog.setVisible(false);
-                dialog.dispose();
-            }
-
-        });
-        dialog.getContentPane().add(jPanel, BorderLayout.SOUTH);
-
-        dialog.setTitle(title);
-        dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        dialog.setSize(width, height);
-        // Has to be done after set size
-        dialog.setLocationRelativeTo(parent);
-        dialog.setVisible(true);
     }
 
     /**

@@ -1,21 +1,37 @@
 package net.kenevans.git.repositorymanager.utils;
 
+import java.awt.BorderLayout;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
+/**
+ * Utils
+ * 
+ * @author Kenneth Evans, Jr.
+ */
 public class Utils
 {
     public static final String LS = System.getProperty("line.separator");
 
     /**
-     * Generic method to get a file suing a JFileChooder
+     * Generic method to get a file using a JFileChooser
      * 
      * @param defaultPath
      * @return the File or null if aborted.
@@ -111,7 +127,7 @@ public class Utils
      * @param msg
      * @param ex
      */
-    public static void excMsg(String msg, Error ex) {
+    public static void excMsg(String msg, Throwable ex) {
         final String fullMsg = msg += LS + "Exception: " + ex + LS
             + ex.getMessage();
         // Show it in a message box
@@ -214,47 +230,81 @@ public class Utils
     }
 
     /**
-     * Utility method to append a line with a given separator to the given
-     * StringBuffer.
-     * 
-     * @param sb
-     * @param text
-     * @param separator
+     * Displays a scrolled text dialog with the given message using a default
+     * font.
+     *
+     * @param parent
+     * @param message
+     * @param title
+     * @param width
+     * @param height
      */
-    public static void appendLine(StringBuilder sb, String text,
-        String separator) {
-        sb.append(text);
-        sb.append(separator);
+    public static void scrolledTextMsg(Frame parent, String message,
+        String title, int width, int height) {
+        String fontName = Font.SANS_SERIF;
+        int fontStyle = Font.PLAIN;
+        int fontSize = 12;
+        scrolledTextMsg(parent, message, title, width, height, fontName,
+            fontStyle, fontSize);
     }
 
     /**
-     * Utility method to append a line with line separator to the given
-     * StringBuffer.
+     * Displays a scrolled text dialog with the given message. <br>
+     * Some useful possibilities for the font:
+     * <ul>
+     * <li>Font.SANS_SERIF, Font.PLAIN, 12</li>
+     * <li>Font.MONOSPACED, Font.BOLD, 12</li>
+     * <li>Font.DIALOG, Font.PLAIN, 12</li>
+     * </ul>
+     * You can also use a named font e.g. "Consolas".
      * 
-     * @param sb
-     * @param text
+     * @param parent
+     * @param message
+     * @param title
+     * @param width
+     * @param height
+     * @param fontName
+     * @param fontStyle
+     * @param fontSize
      */
-    public static void appendLine(StringBuilder sb, String text) {
-        appendLine(sb, text, LS);
-    }
+    public static void scrolledTextMsg(Frame parent, String message,
+        String title, int width, int height, String fontName, int fontStyle,
+        int fontSize) {
+        final JDialog dialog = new JDialog(parent);
 
-    /**
-     * Utility method to append a line separator to the given StringBuffer.
-     * 
-     * @param sb
-     */
-    public static void appendSeparator(StringBuilder sb, String separator) {
-        sb.append(separator);
-    }
+        // Message
+        JPanel jPanel = new JPanel();
+        JTextArea textArea = new JTextArea(message);
+        textArea.setEditable(false);
+        textArea.setCaretPosition(0);
+        Font font = new Font(fontName, fontStyle, fontSize);
+        textArea.setFont(font);
 
-    /**
-     * Utility method to append a line with the given separator to the given
-     * StringBuffer.
-     * 
-     * @param sb
-     */
-    public static void appendLS(StringBuilder sb) {
-        sb.append(LS);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        jPanel.add(scrollPane, BorderLayout.CENTER);
+        dialog.getContentPane().add(scrollPane);
+
+        // Close button
+        jPanel = new JPanel();
+        JButton button = new JButton("OK");
+        jPanel.add(button);
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dialog.setVisible(false);
+                dialog.dispose();
+            }
+
+        });
+        dialog.getContentPane().add(jPanel, BorderLayout.SOUTH);
+
+        // Settings
+        dialog.setTitle(title);
+        dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        dialog.setSize(width, height);
+        // Has to be done after set size
+        dialog.setLocationRelativeTo(parent);
+        dialog.setVisible(true);
     }
 
 }

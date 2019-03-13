@@ -51,13 +51,13 @@ public interface IConstants
     /***
      * The name of the preference node for accessing preferences for this
      * application. On Windows these are found in the registry under
-     * HKCU/JavaSoft/Prefs.
+     * HKCU/Software/JavaSoft/Prefs.
      */
     public static final String P_PREFERENCE_NODE = "net/kenevans/repositorymanager/preferences";
 
     /*** The preference name for the repository locations. */
     public static final String P_REPOSITORY_LOCATIONS = "repositoryLocations";
-    /*** The default value for the default directory for finding GPX files. */
+    /*** The default value for the for the repository locations. */
     public static final String D_REPOSITORY_LOCATIONS = "";
 
     /*** The preference name for the Git Extensions path. */

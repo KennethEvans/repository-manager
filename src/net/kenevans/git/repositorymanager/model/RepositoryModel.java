@@ -264,13 +264,13 @@ public class RepositoryModel implements IConstants
         Git git = null;
         List<Ref> call, call1;
         boolean isClean;
-        Utils.appendLine(sb, getFilePath(), COMMA);
+        sb.append(getFilePath() + COMMA + LS);
         try {
             try {
                 git = Git.open(file);
             } catch(RepositoryNotFoundException ex) {
                 String msg = "Repository not found";
-                Utils.appendLine(sb, msg);
+                sb.append(msg + LS);
                 return sb.toString();
             }
             repository = git.getRepository();
@@ -279,97 +279,94 @@ public class RepositoryModel implements IConstants
             if(doStatus) {
                 status = git.status().call();
                 isClean = status.isClean();
-                Utils.appendLine(sb, "Clean: " + status.isClean());
+                sb.append("Clean: " + status.isClean() + LS);
                 if(full || !isClean) {
-                    Utils.appendLine(sb, "Added: " + status.getAdded());
-                    Utils.appendLine(sb, "Changed: " + status.getChanged());
-                    Utils.appendLine(sb,
-                        "Conflicting: " + status.getConflicting());
-                    Utils.appendLine(sb, "ConflictingStageState: "
-                        + status.getConflictingStageState());
-                    Utils.appendLine(sb,
-                        "IgnoredNotInIndex: " + status.getIgnoredNotInIndex());
-                    Utils.appendLine(sb, "Missing: " + status.getMissing());
-                    Utils.appendLine(sb, "Modified: " + status.getModified());
-                    Utils.appendLine(sb, "Removed: " + status.getRemoved());
-                    Utils.appendLine(sb, "Untracked: " + status.getUntracked());
-                    Utils.appendLine(sb,
-                        "UntrackedFolders: " + status.getUntrackedFolders());
+                    sb.append("Added: " + status.getAdded() + LS);
+                    sb.append("Changed: " + status.getChanged() + LS);
+                    sb.append("Conflicting: " + status.getConflicting() + LS);
+                    sb.append("ConflictingStageState: "
+                        + status.getConflictingStageState() + LS);
+                    sb.append("IgnoredNotInIndex: "
+                        + status.getIgnoredNotInIndex() + LS);
+                    sb.append("Missing: " + status.getMissing() + LS);
+                    sb.append("Modified: " + status.getModified() + LS);
+                    sb.append("Removed: " + status.getRemoved() + LS);
+                    sb.append("Untracked: " + status.getUntracked() + LS);
+                    sb.append("UntrackedFolders: "
+                        + status.getUntrackedFolders() + LS);
                 }
             }
 
             // Branches
             if(doBranchTracking && full) {
-                Utils.appendLine(sb, "Branches");
+                sb.append("Branches" + LS);
                 call = git.branchList().setListMode(ListMode.ALL).call();
                 for(Ref ref : call) {
-                    Utils.appendLine(sb, tab2 + ref.getName());
+                    sb.append(tab2 + ref.getName() + LS);
                 }
             }
 
             // Remotes
             if(doRemotes && full) {
-                Utils.appendLine(sb, "Remotes");
+                sb.append("Remotes" + LS);
                 Config config = repository.getConfig();
                 Set<String> remotes = config.getSubsections("remote");
                 if(remotes.size() == 0) {
-                    Utils.appendLine(sb, tab2 + "None");
+                    sb.append(tab2 + "None" + LS);
                 }
                 for(String remoteName : remotes) {
                     String url = config.getString("remote", remoteName, "url");
-                    Utils.appendLine(sb, tab2 + remoteName + " (" + url + ")");
+                    sb.append(tab2 + remoteName + " (" + url + ")" + LS);
                 }
             }
 
             // Complete branch tracking
             if(doBranchTracking) {
-                Utils.appendLine(sb, "Tracking");
+                sb.append("Tracking" + LS);
                 if(full) {
                     // Tracking branch
                     String trackingBranch = new BranchConfig(
                         repository.getConfig(), repository.getBranch())
                             .getTrackingBranch();
-                    Utils.appendLine(sb,
-                        tab2 + "Tracking Branch: " + trackingBranch);
+                    sb.append(tab2 + "Tracking Branch: " + trackingBranch + LS);
                 }
                 // Loop over local branches
                 List<Integer> counts;
                 call = git.branchList().call();
                 if(call.size() == 0) {
-                    Utils.appendLine(sb, tab2 + "No local branches");
+                    sb.append(tab2 + "No local branches" + LS);
                 } else {
                     for(Ref refLocal : call) {
                         call1 = git.branchList().setListMode(ListMode.REMOTE)
                             .call();
                         if(call1.size() == 0) {
-                            Utils.appendLine(sb, tab2 + "No remote branches");
+                            sb.append(tab2 + "No remote branches" + LS);
                             continue;
                         }
                         for(Ref refRemote : call1) {
                             counts = JGitUtilities.calculateDivergence(
                                 repository, refLocal, refRemote);
-                            Utils.appendLine(sb,
-                                tab2 + "For " + refLocal.getName() + " and "
-                                    + refRemote.getName());
+                            sb.append(tab2 + "For " + refLocal.getName()
+                                + " and " + refRemote.getName() + LS);
                             if(counts == null) {
-                                Utils.appendLine(sb, tab4 + "Not found");
+                                sb.append(tab4 + "Not found" + LS);
                             } else if(counts.size() != 2) {
-                                Utils.appendLine(sb,
-                                    tab4 + "Wrong size : " + counts.size());
+                                sb.append(tab4 + "Wrong size : " + counts.size()
+                                    + LS);
                             } else {
-                                Utils.appendLine(sb,
-                                    tab4 + "Commits ahead : " + counts.get(0)
-                                        + " Commits behind : " + counts.get(1));
+                                sb.append(tab4 + "Commits ahead : "
+                                    + counts.get(0) + " Commits behind : "
+                                    + counts.get(1) + LS);
                             }
                         }
                     }
                 }
             }
-            Utils.appendLS(sb);
+            sb.append(LS);
         } catch(Exception ex) {
             String msg = "Error getting status";
             Utils.excMsg(msg, ex);
-            Utils.appendLine(sb, msg);
+            sb.append(msg + LS);
             return sb.toString();
         }
         return sb.toString();

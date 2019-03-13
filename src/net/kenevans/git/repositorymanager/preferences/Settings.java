@@ -45,7 +45,6 @@ public class Settings implements IConstants
         }
         gitExtensionsPath = prefs.get(P_GIT_EXTENSIONS_PATH,
             D_GIT_EXTENSIONS_PATH);
-
     }
 
     /**
