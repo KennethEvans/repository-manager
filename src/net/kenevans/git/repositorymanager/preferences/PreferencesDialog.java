@@ -1,6 +1,5 @@
 package net.kenevans.git.repositorymanager.preferences;
 
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -11,6 +10,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -21,7 +21,7 @@ import net.kenevans.git.repositorymanager.utils.Utils;
 
 /**
  * PreferencesDialog is a dialog to set the Preferences for Repository Manager. It only
- * returns after Cancel. It can save the values to the preference store or set
+ * returns after Done. It can save the values to the preference store or set
  * them in the application. In either case it remains visible.
  * 
  * @author Kenneth Evans, Jr.
@@ -45,8 +45,8 @@ public class PreferencesDialog extends JDialog implements IConstants
     /**
      * Constructor
      */
-    public PreferencesDialog(Component parent, RepositoryManager manager) {
-        super();
+    public PreferencesDialog(JFrame parent, RepositoryManager manager) {
+        super(parent);
         this.application = manager;
         if(manager == null) {
             Utils.errMsg("RepositoryManager is null");
@@ -211,7 +211,7 @@ public class PreferencesDialog extends JDialog implements IConstants
         buttonPanel.add(button);
 
         button = new JButton();
-        button.setText("Cancel");
+        button.setText("Done");
         button.setToolTipText("Close the dialog and do nothing.");
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent ev) {
@@ -345,7 +345,7 @@ public class PreferencesDialog extends JDialog implements IConstants
 
     /**
      * Shows the dialog and returns whether it was successful or not. However
-     * currently it is always successful and returns only on Cancel.
+     * currently it is always successful and returns only on Done.
      * 
      * @return
      */

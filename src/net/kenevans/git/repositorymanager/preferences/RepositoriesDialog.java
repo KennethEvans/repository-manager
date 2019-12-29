@@ -19,6 +19,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -35,7 +36,7 @@ import net.kenevans.git.repositorymanager.utils.Utils;
 
 /**
  * RepositoriesDialog is a dialog to manage repositories. It only
- * returns after Cancel. It can save the values to the preference store or set
+ * returns after Done. It can save the values to the preference store or set
  * them in the manager. In either case it remains visible.
  * 
  * @author Kenneth Evans, Jr.
@@ -77,8 +78,8 @@ public class RepositoriesDialog extends JDialog implements IConstants
     /**
      * Constructor
      */
-    public RepositoriesDialog(Component parent, RepositoryManager manager) {
-        super();
+    public RepositoriesDialog(JFrame parent, RepositoryManager manager) {
+        super(parent);
         this.manager = manager;
         if(manager == null) {
             Utils.errMsg("RepositoryManager is null");
@@ -256,7 +257,7 @@ public class RepositoriesDialog extends JDialog implements IConstants
         mainButtonPanel.add(button);
 
         button = new JButton();
-        button.setText("Cancel");
+        button.setText("Done");
         button.setToolTipText("Close the dialog and do nothing.");
         button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent ev) {
@@ -689,7 +690,7 @@ public class RepositoriesDialog extends JDialog implements IConstants
 
     /**
      * Shows the dialog and returns whether it was successful or not. However
-     * currently it is always successful and returns only on Cancel.
+     * currently it is always successful and returns only on Done.
      * 
      * @return
      */
