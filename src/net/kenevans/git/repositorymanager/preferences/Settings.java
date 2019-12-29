@@ -1,13 +1,8 @@
 package net.kenevans.git.repositorymanager.preferences;
 
-import java.util.ArrayList;
 import java.util.prefs.Preferences;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 import net.kenevans.git.repositorymanager.model.IConstants;
-import net.kenevans.git.repositorymanager.model.RepositoryLocations;
 import net.kenevans.git.repositorymanager.ui.RepositoryManager;
 import net.kenevans.git.repositorymanager.utils.Utils;
 
@@ -18,10 +13,6 @@ import net.kenevans.git.repositorymanager.utils.Utils;
  */
 public class Settings implements IConstants
 {
-    private String jsonRepositoryLocations;
-    private RepositoryLocations repositoryLocations = new RepositoryLocations(
-        new ArrayList<String>(), new ArrayList<String>(),
-        new ArrayList<String>());
     private String gitExtensionsPath = D_GIT_EXTENSIONS_PATH;
 
     /**
@@ -29,20 +20,6 @@ public class Settings implements IConstants
      */
     public void loadFromPreferences() {
         Preferences prefs = RepositoryManager.getUserPreferences();
-
-        jsonRepositoryLocations = prefs.get(P_REPOSITORY_LOCATIONS,
-            D_REPOSITORY_LOCATIONS);
-        // // DEBUG
-        // System.out.println(
-        // "Load: jsonRepositoryLocations=" + jsonRepositoryLocations);
-        Gson gson = new Gson();
-        RepositoryLocations newLocations = gson.fromJson(
-            jsonRepositoryLocations, new TypeToken<RepositoryLocations>() {
-            }.getType());
-        if(newLocations != null && newLocations.getParentDirectories() != null
-            && newLocations.getIndividualRepositories() != null) {
-            repositoryLocations = newLocations;
-        }
         gitExtensionsPath = prefs.get(P_GIT_EXTENSIONS_PATH,
             D_GIT_EXTENSIONS_PATH);
     }
@@ -60,14 +37,6 @@ public class Settings implements IConstants
         }
         try {
             Preferences prefs = RepositoryManager.getUserPreferences();
-            Gson gson = new Gson();
-            String jsonRepositoryLocations = gson.toJson(repositoryLocations,
-                new TypeToken<RepositoryLocations>() {
-                }.getType());
-            // // DEBUG
-            // System.out.println(
-            // "Save: jsonRepositoryLocations=" + jsonRepositoryLocations);
-            prefs.put(P_REPOSITORY_LOCATIONS, jsonRepositoryLocations);
             prefs.put(P_GIT_EXTENSIONS_PATH, gitExtensionsPath);
         } catch(Exception ex) {
             retVal = false;
@@ -150,37 +119,7 @@ public class Settings implements IConstants
      * @param settings
      */
     public void copyFrom(Settings settings) {
-        this.jsonRepositoryLocations = settings.jsonRepositoryLocations;
         this.gitExtensionsPath = settings.gitExtensionsPath;
-    }
-
-    /**
-     * @return The value of jsonRepositoryLocations.
-     */
-    public String getJsonRepositoryLocations() {
-        return jsonRepositoryLocations;
-    }
-
-    /**
-     * @param jsonRepositoryLocations The new value for jsonRepositoryLocations.
-     */
-    public void setJsonRepositoryLocations(String jsonRepositoryLocations) {
-        this.jsonRepositoryLocations = jsonRepositoryLocations;
-    }
-
-    /**
-     * @return The value of repositoryLocations.
-     */
-    public RepositoryLocations getRepositoryLocations() {
-        return repositoryLocations;
-    }
-
-    /**
-     * @param repositoryLocations The new value for repositoryLocations.
-     */
-    public void setRepositoryLocations(
-        RepositoryLocations repositoryLocations) {
-        this.repositoryLocations = repositoryLocations;
     }
 
     /**
