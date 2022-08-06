@@ -137,6 +137,10 @@ public class RepositoryManager extends JFrame implements IConstants
         for(String dirName : repositoryLocations.getParentDirectories()) {
             parentDir = new File(dirName);
             File[] files = parentDir.listFiles();
+            if(files ==  null) {
+                Utils.errMsg("There are no files in " + parentDir);
+                return;
+            }
             for(File dir : files) {
                 if(dir.isDirectory()) {
                     // Check if there is a .git repository
